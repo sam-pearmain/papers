@@ -1,13 +1,28 @@
-use clap::{Parser};
+use std::path::PathBuf;
 
-#[derive(Debug, Parser)]
+use clap::{Parser, Subcommand};
+
+#[derive(Parser, Debug)]
 #[command(author, version, about)]
 struct Args {
-    name: String, 
+    #[command(subcommand)]
+    command: Commands, 
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+    /// Initialises a .papers file for bibliography tracking
+    Init,
+    /// Adds entries from a .bib file to the current tracked bibliography
+    Add { bibtex_path: PathBuf },
+    /// Removes a specific citation corresponding to the given citekey 
+    Remove { citekey: String }, 
 }
 
 fn main() {
     let args = Args::parse();
 
-    println!("hello {}", args.name);
+    match args.command {
+        Commands::Print => todo!()
+    };
 }
