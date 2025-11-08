@@ -3,7 +3,8 @@ use std::fmt;
 
 #[derive(Debug)]
 pub enum ParseError {
-    UnknownEntryKind { kind: String }
+    UnknownEntryKind { kind: String },
+    UnknownFieldKind { king: String }
 }
 
 impl fmt::Display for ParseError {
@@ -12,6 +13,9 @@ impl fmt::Display for ParseError {
             ParseError::UnknownEntryKind { kind } => {
                 write!(f, "unknown entry kind: {}", kind)
             }, 
+            ParseError::UnknownFieldKind { king } => {
+                write!(f, "unknown field kind: {}", kind)
+            }
         }
     }
 }

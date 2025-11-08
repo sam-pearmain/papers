@@ -20,7 +20,7 @@ pub enum EntryKind {
 }
 
 impl FromStr for EntryKind {
-    type Err = &'static str;
+    type Err = ParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
@@ -38,7 +38,7 @@ impl FromStr for EntryKind {
             "proceedings"   => Ok(Self::Proceedings), 
             "techreport"    => Ok(Self::TechReport), 
             "unpublished"   => Ok(Self::Unpublished), 
-            _ => Err("unknown entry type")
+            _ => Err(ParseError::UnknownEntryKind { kind: s.to_string() })
         }
     }
 }
