@@ -21,8 +21,4 @@ enum Commands {
 
 fn main() {
     let args = Args::parse();
-
-    match args.command {
-        Commands::Print => todo!()
-    };
 }

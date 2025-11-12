@@ -1,22 +1,11 @@
 use std::str::FromStr;
-use crate::bibtex::error::ParseError;
+use crate::bibtex::{error::ParseError, fields::Field};
 
 #[derive(Debug)]
 pub enum EntryKind {
-    Article, 
-    Book, 
-    Booklet, 
-    Conference, 
-    InBook, 
-    InCollection, 
-    InProceedings, 
-    Manual, 
-    MasterThesis, 
-    Misc, 
-    PhDThesis, 
-    Proceedings, 
-    TechReport, 
-    Unpublished, 
+    Article, Book, Booklet, Conference, InBook, InCollection,
+    InProceedings, Manual, MasterThesis, Misc, PhDThesis,
+    Proceedings, TechReport, Unpublished,
 }
 
 impl FromStr for EntryKind {
@@ -43,10 +32,9 @@ impl FromStr for EntryKind {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Entry {
     citekey: String, 
     kind: EntryKind, 
-    fields: Fields,
+    fields: Vec<Field>,
 }
