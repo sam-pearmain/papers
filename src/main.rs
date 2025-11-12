@@ -14,11 +14,17 @@ enum Commands {
     /// Initialises a .papers file for bibliography tracking
     Init,
     /// Adds entries from a .bib file to the current tracked bibliography
-    Add { bibtex_path: PathBuf },
+    Add { bibfile: PathBuf },
     /// Removes a specific citation corresponding to the given citekey 
     Remove { citekey: String }, 
 }
 
 fn main() {
     let args = Args::parse();
+
+    match args.command {
+        Commands::Init => todo!(), 
+        Commands::Add { bibfile } => todo!(), 
+        Commands::Remove { citekey } => todo!(), 
+    }
 }

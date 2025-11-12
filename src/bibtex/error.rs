@@ -2,20 +2,20 @@ use std::error::Error;
 use std::fmt;
 
 #[derive(Debug)]
-pub enum ParseErrorKind {
-    UnknownEntryKind { kind: String },
-    UnknownFieldKind { kind: String }, 
+pub enum ParseErrorType {
+    UnknownEntry { entry: String },
+    UnknownField { field: String }, 
     BraceLevelExceeded,
 }
 
-impl fmt::Display for ParseErrorKind {
+impl fmt::Display for ParseErrorType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::UnknownEntryKind { kind } => {
-                write!(f, "unknown entry kind: {}", kind)
+            Self::UnknownEntry { entry } => {
+                write!(f, "unknown entry: {}", entry)
             }, 
-            Self::UnknownFieldKind { kind } => {
-                write!(f, "unknown field kind: {}", kind)
+            Self::UnknownField { field } => {
+                write!(f, "unknown field: {}", field)
             }, 
             Self::BraceLevelExceeded => {
                 write!(f, "brace level exceeded")
@@ -24,11 +24,25 @@ impl fmt::Display for ParseErrorKind {
     }
 }
 
+macro_rules! parse_error_constuctor_impls {
+    () => {
+        impl ParseError {
+            pub fn 
+        }
+    };
+}
+
 #[derive(Debug)]
 pub struct ParseError {
-    kind: ParseErrorKind, 
-    row: u32, 
-    col: u32, 
+    kind: ParseErrorType, 
+    row: usize, 
+    col: usize, 
+}
+
+impl ParseError {
+    pub fn new(kind: ParseErrorType, row: usize, col: usize) -> Self {
+        ParseError { kind, row, col }
+    }
 }
 
 impl fmt::Display for ParseError {
