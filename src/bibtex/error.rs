@@ -1,8 +1,10 @@
 use std::error::Error;
 use std::fmt;
+use crate::bibtex::parser::Token;
 
 #[derive(Debug)]
 pub enum ParseErrorType {
+    UnexpectedToken { token: Token}, 
     UnknownEntry { entry: String },
     UnknownField { field: String }, 
     BraceLevelExceeded,
@@ -19,17 +21,12 @@ impl fmt::Display for ParseErrorType {
             }, 
             Self::BraceLevelExceeded => {
                 write!(f, "brace level exceeded")
+            }, 
+            Self::UnexpectedToken { token } => {
+                write!(f, "unexpected token: {}", token)
             }
         }
     }
-}
-
-macro_rules! parse_error_constuctor_impls {
-    () => {
-        impl ParseError {
-            pub fn 
-        }
-    };
 }
 
 #[derive(Debug)]
@@ -42,6 +39,34 @@ pub struct ParseError {
 impl ParseError {
     pub fn new(kind: ParseErrorType, row: usize, col: usize) -> Self {
         ParseError { kind, row, col }
+    }
+
+    pub fn unexpected_token(token: Token, row: usize, col: usize) -> Self {
+        ParseError {
+            kind: ParseErrorType::UnexpectedToken { token }, 
+            row, col
+        }
+    }
+
+    pub fn unknown_entry(entry: String, row: usize, col: usize) -> Self {
+        ParseError { 
+            kind: ParseErrorType::UnknownEntry { entry }, 
+            row, col
+        }
+    }
+
+    pub fn unknown_field(field: String, row: usize, col: usize) -> Self {
+        ParseError {
+            kind: ParseErrorType::UnknownField { field }, 
+            row, col
+        }
+    }
+
+    pub fn brace_level_exceeded(row: usize, col: usize) -> Self {
+        ParseError {
+            kind: ParseErrorType::BraceLevelExceeded, 
+            row, col
+        }
     }
 }
 

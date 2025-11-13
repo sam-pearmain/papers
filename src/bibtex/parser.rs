@@ -1,8 +1,9 @@
-use std::iter::Peekable;
+use std::fmt;
 use std::str::Chars;
+use std::iter::Peekable;
 use crate::bibtex::error::ParseError;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Token {
     At, OpenBrace, CloseBrace, Comma, Equals, Ident(String), 
     String(String), Eof, 
@@ -14,14 +15,22 @@ impl Token {
     }
 }
 
-#[derive(Debug)]
-pub struct TokenPacket {
-    token: Token, 
-    row: u32, 
-    col: u32,
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::At                      => write!(f, "@"), 
+            Self::CloseBrace              => write!(f, "}}"), 
+            Self::Comma                   => write!(f, ","), 
+            Self::Eof                     => write!(f, "EOF"), 
+            Self::Equals                  => write!(f, "="), 
+            Self::Ident(ident)   => write!(f, "ident: {}", ident), 
+            Self::OpenBrace               => write!(f, "{{"), 
+            Self::String(string) => write!(f, "string: {}", string), 
+        }
+    }
 }
 
-type TokenStream = Vec<TokenPacket>;
+type TokenStream = Vec<Token>;
 
 pub struct Parser<'a> {
     input: Peekable<Chars<'a>>, 
@@ -91,7 +100,7 @@ impl<'a> Parser<'a> {
                 '@' => Token::At, 
                 '{' => { self.increment_brace_level(); Token::OpenBrace }, 
                 '}' => { self.decrement_brace_level(); Token::CloseBrace }, 
-                ',' => { Token::Comma }, 
+                ',' => { todo!() }, 
                 _ => todo!()
             }
         } else {
@@ -106,7 +115,10 @@ impl<'a> Parser<'a> {
     fn decrement_brace_level(&mut self) -> Result<(), ParseError> {
         self.brace_level -= 1;
         if self.brace_level < 0 {
-
+            Err(ParseError::new(
+                ParseErrorKind::
+            ))
         }
+        Ok(())
     }
 }
