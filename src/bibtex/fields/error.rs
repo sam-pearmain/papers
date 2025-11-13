@@ -5,6 +5,7 @@ pub enum ParseFieldError {
     UnknownMonth { got: String }, 
     UnknownNumber { got: String }, 
     InvalidPageNumber { num: usize },
+    InvalidYear { year: String },
     MangledPageRange { from: usize, to: usize },
 }
 
@@ -20,6 +21,9 @@ impl fmt::Display for ParseFieldError {
             Self::InvalidPageNumber { num } => {
                 write!(f, "invalid page number '{}'", num)
             },
+            Self::InvalidYear { year } => {
+                write!(f, "invalid year '{}'", year)
+            }
             Self::MangledPageRange { from, to } => {
                 write!(f, "mangled page range '{}--{}'", from, to)
             }

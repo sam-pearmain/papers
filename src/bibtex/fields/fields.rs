@@ -1,7 +1,8 @@
 use std::{collections::HashMap, str::FromStr};
 use url::Url;
 
-use crate::bibtex::{error::{ParseError, ParseErrorType}, fields::date::{Month, ParseDateError}};
+use crate::bibtex::error::{ParseError, ParseErrorType};
+use crate::bibtex::fields::{date::Month, error::ParseFieldError, pages::Pages};
 
 #[derive(Debug, PartialEq, Clone, Hash)]
 /// An enum for the different kinds of BibTex field 
@@ -67,11 +68,12 @@ impl FieldValue {
         todo!()
     }
 
-    fn pages(s: &str) -> Self {
-        todo!()
+    fn pages(s: &str) -> Result<Self, ParseFieldError> {
+        let pages = s.parse::<Pages>()?;
+        Ok(Self::Pages { pages })
     }
 
-    fn month(s: &str) -> Result<FieldValue, ParseDateError> {
+    fn month(s: &str) -> Result<FieldValue, ParseFieldError> {
         let month = Month::from_str(s)?;
         Ok(Self::Month { month })
     }

@@ -1,4 +1,6 @@
 use std::{fmt, str::FromStr};
+use numerals::roman::Roman;
+
 use crate::bibtex::fields::error::ParseFieldError;
 
 #[derive(Debug, Clone, Copy)]
@@ -45,6 +47,29 @@ impl fmt::Display for Month {
             Self::Nov => write!(f, "November"),
             Self::Dec => write!(f, "December"),
         }
+    }
+}
+
+pub enum Year {
+    Standard(usize), 
+    Numerals(Roman),
+}
+
+impl FromStr for Year {
+    type Err = ParseFieldError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.trim();
+
+        if let Ok(year) = s.parse::<usize>() {
+            return Ok(Year::Standard(year))
+        }
+
+        if let Some(year) = Roman::parse(s) {
+            return Ok(Year::Numerals(year))
+        }
+
+        return Err(ParseFieldError::InvalidYear { year: s.to_string() })
     }
 }
 

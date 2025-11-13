@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.51", features = ["derive"] }
+numerals = "0.1.4"
 url = "2.5.7"
