@@ -1,59 +1,34 @@
-use std::fmt;
 use std::str::Chars;
 use std::iter::Peekable;
+use crate::bibtex::bibliography::Bibliography;
+use crate::bibtex::entry::Entry;
 use crate::bibtex::error::ParseError;
-
-#[derive(Clone, Debug, PartialEq)]
-pub enum Token {
-    At, OpenBrace, CloseBrace, Comma, Equals, Ident(String), 
-    String(String), Eof, 
-}
-
-impl Token {
-    pub fn is_eof(&self) -> bool {
-        matches!(self, Self::Eof)
-    }
-}
-
-impl fmt::Display for Token {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::At                      => write!(f, "@"), 
-            Self::CloseBrace              => write!(f, "}}"), 
-            Self::Comma                   => write!(f, ","), 
-            Self::Eof                     => write!(f, "EOF"), 
-            Self::Equals                  => write!(f, "="), 
-            Self::Ident(ident)   => write!(f, "ident: {}", ident), 
-            Self::OpenBrace               => write!(f, "{{"), 
-            Self::String(string) => write!(f, "string: {}", string), 
-        }
-    }
-}
-
-type TokenStream = Vec<Token>;
+use crate::bibtex::fields::Field;
 
 pub struct Parser<'a> {
     input: Peekable<Chars<'a>>, 
-    row: u32, col: u32, 
-    brace_level: u16,  
+    row: u32, 
+    col: u32, 
 }
 
 impl<'a> Parser<'a> {
     pub fn new(input: &'a str) -> Self {
         Parser { 
             input: input.chars().peekable(), 
-            row: 1, col: 1, brace_level: 0,
+            row: 1, col: 1,
         }
     }
 
-    pub fn tokenize(&mut self) -> Result<TokenStream, ParseError> {
-        let mut tokens = TokenStream::new();
+    pub fn parse(&mut self) -> Result<Bibliography, ParseError> {
+        let bibliography = Bibliography::new();
+    }
 
-        loop {
-            self.skip_whitespace_and_comments();
-            let token = self.consume_token();
-            
-        }
+    fn parse_entry(&mut self) -> Result<Entry, ParseError> {
+        todo!()
+    }
+
+    fn parse_field(&mut self) -> Result<Field, ParseError> {
+        todo!()
     }
 
     fn advance(&mut self) -> Option<char> {
@@ -92,33 +67,5 @@ impl<'a> Parser<'a> {
                 _ => break,
             }
         }
-    }
-
-    fn consume_token(&mut self) -> Token {
-        if let Some(c) = self.peek() {
-            let token_kind = match c {
-                '@' => Token::At, 
-                '{' => { self.increment_brace_level(); Token::OpenBrace }, 
-                '}' => { self.decrement_brace_level(); Token::CloseBrace }, 
-                ',' => { todo!() }, 
-                _ => todo!()
-            }
-        } else {
-            Token::Eof
-        }
-    }
-
-    fn increment_brace_level(&mut self) {
-        self.brace_level += 1;
-    }
-
-    fn decrement_brace_level(&mut self) -> Result<(), ParseError> {
-        self.brace_level -= 1;
-        if self.brace_level < 0 {
-            Err(ParseError::new(
-                ParseErrorKind::
-            ))
-        }
-        Ok(())
     }
 }

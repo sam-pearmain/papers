@@ -1,7 +1,8 @@
 use std::str::FromStr;
-use crate::bibtex::{error::ParseError, fields::Field};
+use crate::bibtex::error::ParseErrorType; 
+use crate::bibtex::fields::Field;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum EntryKind {
     Article, Book, Booklet, Conference, InBook, InCollection,
     InProceedings, Manual, MasterThesis, Misc, PhDThesis,
@@ -9,7 +10,7 @@ pub enum EntryKind {
 }
 
 impl FromStr for EntryKind {
-    type Err = ParseError;
+    type Err = ParseErrorType;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
@@ -27,14 +28,14 @@ impl FromStr for EntryKind {
             "proceedings"   => Ok(Self::Proceedings), 
             "techreport"    => Ok(Self::TechReport), 
             "unpublished"   => Ok(Self::Unpublished), 
-            _ => Err(ParseError::UnknownEntryKind { kind: s.to_string() })
+            _ => Err(ParseErrorType::UnknownEntry { entry: s.to_string() })
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Entry {
-    citekey: String, 
-    kind: EntryKind, 
+    pub citekey: String, 
+    pub kind: EntryKind, 
     fields: Vec<Field>,
 }

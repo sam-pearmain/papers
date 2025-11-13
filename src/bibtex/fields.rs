@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::bibtex::error::ParseError;
+use crate::bibtex::error::ParseErrorType;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 /// An enum for the different kinds of BibTex field 
@@ -11,7 +11,7 @@ pub enum Field {
 }
 
 impl FromStr for Field {
-    type Err = ParseError;
+    type Err = ParseErrorType;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_ascii_lowercase().as_str() {
@@ -41,7 +41,7 @@ impl FromStr for Field {
             "issn"         => Ok(Self::Issn),
             "isbn"         => Ok(Self::Isbn),
             "url"          => Ok(Self::Url),
-            _              => Err(ParseError::UnknownFieldKind { kind: s.to_string() })
+            _              => Err(ParseErrorType::UnknownField { field: s.to_string() })
         }
     }
 }
