@@ -11,7 +11,7 @@ impl FromStr for Month {
     type Err = ParseFieldError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_ascii_lowercase().as_str() {
+        match s.trim().to_ascii_lowercase().as_str() {
             "1" | "jan" | "january" => Ok(Self::Jan),
             "2" | "feb" | "february" => Ok(Self::Feb),
             "3" | "mar" | "march" => Ok(Self::Mar),
@@ -26,5 +26,36 @@ impl FromStr for Month {
             "12" | "dec" | "december" => Ok(Self::Dec),
             _ => Err(ParseFieldError::UnknownMonth { got: s.to_string() }),
         }
+    }
+}
+
+impl fmt::Display for Month {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Jan => write!(f, "January"),
+            Self::Feb => write!(f, "February"),
+            Self::Mar => write!(f, "March"),
+            Self::Apr => write!(f, "April"),
+            Self::May => write!(f, "May"),
+            Self::Jun => write!(f, "June"),
+            Self::Jul => write!(f, "July"),
+            Self::Aug => write!(f, "August"),
+            Self::Sep => write!(f, "September"),
+            Self::Oct => write!(f, "October"),
+            Self::Nov => write!(f, "November"),
+            Self::Dec => write!(f, "December"),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::bibtex::fields::date::Month;
+
+    #[test]
+    fn test_date() {
+        let jan = "jan";
+        let month = jan.parse::<Month>().expect("wtf");
+        println!("{}", month);
     }
 }
