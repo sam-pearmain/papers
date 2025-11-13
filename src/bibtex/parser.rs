@@ -7,8 +7,8 @@ use crate::bibtex::fields::Field;
 
 pub struct Parser<'a> {
     input: Peekable<Chars<'a>>, 
-    row: u32, 
-    col: u32, 
+    row: usize, 
+    col: usize, 
 }
 
 impl<'a> Parser<'a> {
@@ -20,17 +20,108 @@ impl<'a> Parser<'a> {
     }
 
     pub fn parse(&mut self) -> Result<Bibliography, ParseError> {
-        let bibliography = Bibliography::new();
+        let mut bibliography = Bibliography::new();
+
+        loop {
+            if let Some(entry) = self.parse_entry()? {
+                bibliography.add(entry);
+            } else {
+                break;
+            }
+        }
+
+        if bibliography.is_empty() {
+            Err(ParseError::empty_input())
+        } else {
+            Ok(bibliography)
+        }
     }
 
-    fn parse_entry(&mut self) -> Result<Entry, ParseError> {
+    fn parse_entry(&mut self) -> Result<Option<Entry>, ParseError> {
         todo!()
     }
 
     fn parse_field(&mut self) -> Result<Field, ParseError> {
+        let ident = self.consume_ident()?;
+    }
+
+    /// Consumes an identifier
+    fn consume_ident(&mut self) -> Result<String, ParseError> {
+        self.skip_whitespace_and_comments();
+        let mut ident = String::new();
+        
+        match self.peek() {
+            Some(&c) => {
+                if c.is_ascii_alphanumeric() {
+                    self.advance();
+                    ident.push(c);
+
+                    loop {
+                        if let Some(&c) = self.peek() {
+                            self.advance();
+                            ident.push(c);
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    // we expect an alphanumeric char to start the ident
+                    return Err(ParseError::unexpected_char(c, self.row, self.col));
+                }
+            }, 
+            None => {
+                return Err(ParseError::unexpected_eof(self.row, self.col));
+            }
+        }
+
+        Ok(ident)
+    }
+
+    /// Consumes a value contained within {}s or ""s
+    fn consume_value(&mut self) -> Result<String, ParseError> {
+        self.skip_whitespace_and_comments();
+
+        // next char is either a { or a "
+        match self.peek() {
+            Some(&c) => {
+                match c {
+                    '{' => self.consume_braced_value(),
+                    '"' => self.consume_quoted_value(),
+                    _   => Err(ParseError::unexpected_char(c, self.row, self.col))
+                }
+            }, 
+            None => Err(ParseError::unexpected_eof(self.row, self.col))
+        }
+    }
+
+    /// 
+    fn consume_braced_value(&mut self) -> Result<String, ParseError> {
         todo!()
     }
 
+    ///
+    fn consume_quoted_value(&mut self) -> Result<String, ParseError> {
+        todo!()
+    }
+
+    /// Consumes a given char
+    fn consume_char(&mut self, ch: char) -> Result<(), ParseError> {
+        self.skip_whitespace_and_comments();
+        
+        match self.peek() {
+            Some(&c) => {
+                if c == ch {
+                    self.advance();
+                    Ok(())
+                } else {
+                    Err(ParseError::unexpected_char(c, self.row, self.col))
+                }
+            }, 
+            None => Err(ParseError::unexpected_eof(self.row, self.col))
+        }
+    }
+
+    /// Advances the cursor forwards and consumes the current character
     fn advance(&mut self) -> Option<char> {
         match self.input.next() {
             Some('\n') => {
@@ -46,10 +137,12 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Peeks the next char
     fn peek(&mut self) -> Option<&char> {
         self.input.peek()
     }
 
+    /// Skips whitespace and inline comments
     fn skip_whitespace_and_comments(&mut self) {
         loop {
             match self.peek() {

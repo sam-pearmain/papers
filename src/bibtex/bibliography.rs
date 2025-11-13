@@ -29,4 +29,8 @@ impl Bibliography {
             Err(BibliographyError::EntryNotFound { citekey: citekey.to_string() })
         }
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
 }
