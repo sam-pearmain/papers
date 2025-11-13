@@ -1,7 +1,7 @@
 use std::{collections::HashMap, str::FromStr};
 use url::Url;
 
-use crate::bibtex::error::ParseErrorType;
+use crate::bibtex::{error::{ParseError, ParseErrorType}, fields::date::{Month, ParseDateError}};
 
 #[derive(Debug, PartialEq, Clone, Hash)]
 /// An enum for the different kinds of BibTex field 
@@ -48,14 +48,14 @@ impl FromStr for Field {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FieldValue {
     String { s: String }, 
-    Number { n: usize }, 
-    Pages  { p: Pages }, 
-    Month  { m: Month }, 
-    Year   { y: Year }, 
-    Url    { u: Url }, 
+    Number { number: usize }, 
+    Pages  { pages: Pages }, 
+    Month  { month: Month }, 
+    Year   { year: Year }, 
+    Url    { url: Url }, 
 }
 
 impl FieldValue {
@@ -71,16 +71,18 @@ impl FieldValue {
         todo!()
     }
 
-    fn month(s: &str) -> Self {
-        todo!()
+    fn month(s: &str) -> Result<FieldValue, ParseDateError> {
+        let month = Month::from_str(s)?;
+        Ok(Self::Month { month })
     }
 
     fn url(s: &str) -> Result<Self, url::ParseError> {
         let url = Url::parse(s)?;
-        Ok(Self::Url { u: url })
+        Ok(Self::Url { url })
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Fields {
     fields: HashMap<Field, FieldValue>
 }
@@ -90,9 +92,9 @@ impl Fields {
         Fields { fields: HashMap::new() }
     }
 
-    pub fn add(&mut self, field: Field, value: &str) {
+    pub fn add(&mut self, field: Field, value: &str) -> Result<(), ParseError> {
         match field {
-            Field::
+            
         }
     } 
 }

@@ -3,7 +3,6 @@ use std::iter::Peekable;
 use crate::bibtex::bibliography::Bibliography;
 use crate::bibtex::entry::Entry;
 use crate::bibtex::error::ParseError;
-use crate::bibtex::fields::Field;
 
 pub struct Parser<'a> {
     input: Peekable<Chars<'a>>, 
@@ -49,7 +48,9 @@ impl<'a> Parser<'a> {
         let ident = self.consume_ident()?;
         let field = Field::from_str(&ident)
             .map_err(|_| ParseError::unknown_field(ident, self.row, self.col));
+        
         self.consume_char('=')?;
+        
         let value: String = self.consume_value()?;
 
         

@@ -1,6 +1,5 @@
 use std::str::FromStr;
-use crate::bibtex::error::ParseErrorType; 
-use crate::bibtex::fields::Field;
+use crate::bibtex::{error::ParseErrorType, fields::fields::Fields}; 
 
 #[derive(Debug, Clone)]
 pub enum EntryKind {
@@ -37,5 +36,5 @@ impl FromStr for EntryKind {
 pub struct Entry {
     pub citekey: String, 
     pub kind: EntryKind, 
-    fields: Vec<Field>,
+    fields: Fields,
 }
