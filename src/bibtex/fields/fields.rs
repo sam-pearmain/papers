@@ -2,7 +2,8 @@ use std::{collections::HashMap, str::FromStr};
 use url::Url;
 
 use crate::bibtex::error::{ParseError, ParseErrorType};
-use crate::bibtex::fields::{date::Month, error::ParseFieldError, pages::Pages};
+use crate::bibtex::fields::{date::{Month, Year}, pages::Pages, number::Number};
+use crate::bibtex::fields::error::ParseFieldError;
 
 #[derive(Debug, PartialEq, Clone, Hash)]
 /// An enum for the different kinds of BibTex field 
@@ -52,7 +53,7 @@ impl FromStr for Field {
 #[derive(Debug, Clone)]
 pub enum FieldValue {
     String { s: String }, 
-    Number { number: usize }, 
+    Number { number: Number }, 
     Pages  { pages: Pages }, 
     Month  { month: Month }, 
     Year   { year: Year }, 

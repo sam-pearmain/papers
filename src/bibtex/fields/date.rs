@@ -50,6 +50,7 @@ impl fmt::Display for Month {
     }
 }
 
+#[derive(Debug)]
 pub enum Year {
     Standard(usize), 
     Numerals(Roman),
@@ -70,6 +71,15 @@ impl FromStr for Year {
         }
 
         return Err(ParseFieldError::InvalidYear { year: s.to_string() })
+    }
+}
+
+impl fmt::Display for Year {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Standard(year) => { write!(f, "{}", year)}, 
+            Self::Numerals(roman) => { write!(f, "{:?}", roman)},
+        }
     }
 }
 

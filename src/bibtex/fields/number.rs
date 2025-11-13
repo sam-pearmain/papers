@@ -1,7 +1,7 @@
 use std::str::FromStr;
 use crate::bibtex::fields::error::ParseFieldError;
 
-
+#[derive(Debug, Clone)]
 pub struct Number {
     number: isize
 }
