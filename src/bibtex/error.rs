@@ -25,6 +25,21 @@ impl fmt::Display for ParseErrorType {
 }
 
 #[derive(Debug)]
+pub enum BibliographyError {
+    EntryNotFound { citekey: String }, 
+}
+
+impl fmt::Display for BibliographyError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::EntryNotFound { citekey } => {
+                write!(f, "entry not found: {}", citekey)
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct ParseError {
     kind: ParseErrorType, 
     row: usize, 
