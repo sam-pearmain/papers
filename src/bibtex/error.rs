@@ -4,6 +4,7 @@ use std::fmt;
 #[derive(Debug)]
 pub enum ParseErrorType {
     EmptyInput,
+    EmptyValue, 
     UnexpectedChar { c: char}, 
     UnexpectedEof, 
     UnknownEntry { entry: String },
@@ -15,7 +16,10 @@ impl fmt::Display for ParseErrorType {
         match self {
             Self::EmptyInput => {
                 write!(f, "no entries found in input")
-            }
+            },
+            Self::EmptyValue => {
+                write!(f, "empty value")
+            }, 
             Self::UnexpectedChar { c } => {
                 write!(f, "unexpected token: {}", c)
             }, 
@@ -63,6 +67,13 @@ impl ParseError {
         ParseError { 
             kind: ParseErrorType::EmptyInput, 
             row: None, col: None 
+        }
+    }
+
+    pub fn empty_value(row: usize, col: usize) -> Self {
+        ParseError {
+            kind: ParseErrorType::EmptyValue, 
+            row: Some(row), col: Some(col)
         }
     }
 

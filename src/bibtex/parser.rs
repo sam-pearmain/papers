@@ -1,4 +1,4 @@
-use std::str::Chars;
+use std::str::{Chars, FromStr};
 use std::iter::Peekable;
 use crate::bibtex::bibliography::Bibliography;
 use crate::bibtex::entry::Entry;
@@ -41,8 +41,18 @@ impl<'a> Parser<'a> {
         todo!()
     }
 
+    fn parse_fields(&mut self) {
+        todo!()
+    }
+
     fn parse_field(&mut self) -> Result<Field, ParseError> {
         let ident = self.consume_ident()?;
+        let field = Field::from_str(&ident)
+            .map_err(|_| ParseError::unknown_field(ident, self.row, self.col));
+        self.consume_char('=')?;
+        let value: String = self.consume_value()?;
+
+        
     }
 
     /// Consumes an identifier
@@ -81,7 +91,7 @@ impl<'a> Parser<'a> {
     fn consume_value(&mut self) -> Result<String, ParseError> {
         self.skip_whitespace_and_comments();
 
-        // next char is either a { or a "
+        // next char must be either a '{' or a '"'
         match self.peek() {
             Some(&c) => {
                 match c {
@@ -94,14 +104,78 @@ impl<'a> Parser<'a> {
         }
     }
 
-    /// 
-    fn consume_braced_value(&mut self) -> Result<String, ParseError> {
-        todo!()
+    /// Consumes a "quoted" value and returns the raw string inside
+    fn consume_quoted_value(&mut self) -> Result<String, ParseError> {
+        self.consume_char('"')?;
+
+        let mut value = String::new(); 
+
+        loop {
+            match self.advance() {
+                Some('"') => {
+                    break;
+                }, 
+                Some(c) => {
+                    value.push(c);
+                }, 
+                None => {
+                    return Err(ParseError::unexpected_eof(self.row, self.col))
+                }
+            }
+        }
+
+        if value.is_empty() {
+            Err(ParseError::empty_value(self.row, self.col))
+        } else {
+            Ok(value)
+        }
     }
 
-    ///
-    fn consume_quoted_value(&mut self) -> Result<String, ParseError> {
-        todo!()
+    /// Consumes a {braced} value and returns the raw string inside
+    fn consume_braced_value(&mut self) -> Result<String, ParseError> {
+        self.consume_char('{')?;
+        
+        let mut value = String::new();
+        let mut brace_level = 1;
+
+        loop {
+            match self.advance() {
+                Some('\\') => {
+                    // this is an escape character so push it and the next char
+                    value.push('\\');
+                    if let Some(c) = self.advance() {
+                        value.push(c);
+                    } else {
+                        return Err(ParseError::unexpected_eof(self.row, self.col))
+                    }
+                }, 
+                Some('{') => {
+                    brace_level += 1;
+                    value.push('{');
+                }, 
+                Some('}') => {
+                    brace_level -= 1;
+                    if brace_level == 0 {
+                        // we have escaped the value
+                        break;
+                    } else {
+                        value.push('}');
+                    }
+                }, 
+                Some(c) => {
+                    value.push(c);
+                }, 
+                None => {
+                    return Err(ParseError::unexpected_eof(self.row, self.col));
+                }
+            }
+        }
+
+        if value.is_empty() {
+            Err(ParseError::empty_value(self.row, self.col))
+        } else {
+            Ok(value)
+        }
     }
 
     /// Consumes a given char

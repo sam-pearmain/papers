@@ -1,7 +1,9 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
+use url::Url;
+
 use crate::bibtex::error::ParseErrorType;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Hash)]
 /// An enum for the different kinds of BibTex field 
 pub enum Field {
     Address, Annote, Author, BookTitle, Chapter, Edition, Editor,
@@ -46,12 +48,51 @@ impl FromStr for Field {
     }
 }
 
-impl Field {
-    fn is_non_standard_field(&self) -> bool {
-        matches!(self, Self::Doi | Self::Issn | Self::Isbn | Self::Url)
+#[derive(Debug)]
+pub enum FieldValue {
+    String { s: String }, 
+    Number { n: usize }, 
+    Pages  { p: Pages }, 
+    Month  { m: Month }, 
+    Year   { y: Year }, 
+    Url    { u: Url }, 
+}
+
+impl FieldValue {
+    fn string(s: &str) -> Self {
+        todo!()
     }
 
-    fn is_standard_field(&self) -> bool {
-        !self.is_non_standard_field()
+    fn number(s: &str) -> Self {
+        todo!()
     }
+
+    fn pages(s: &str) -> Self {
+        todo!()
+    }
+
+    fn month(s: &str) -> Self {
+        todo!()
+    }
+
+    fn url(s: &str) -> Result<Self, url::ParseError> {
+        let url = Url::parse(s)?;
+        Ok(Self::Url { u: url })
+    }
+}
+
+pub struct Fields {
+    fields: HashMap<Field, FieldValue>
+}
+
+impl Fields {
+    pub fn new() -> Self {
+        Fields { fields: HashMap::new() }
+    }
+
+    pub fn add(&mut self, field: Field, value: &str) {
+        match field {
+            Field::
+        }
+    } 
 }
