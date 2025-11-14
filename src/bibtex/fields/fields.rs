@@ -2,7 +2,7 @@ use std::{collections::HashMap, str::FromStr};
 use url::Url;
 
 use crate::bibtex::error::{ParseError, ParseErrorType};
-use crate::bibtex::fields::{date::{Month, Year}, pages::Pages, number::Number};
+use crate::bibtex::fields::{date::{Month, Year}, pages::Pages, numbers::Number};
 use crate::bibtex::fields::error::ParseFieldError;
 
 #[derive(Debug, PartialEq, Clone, Hash)]

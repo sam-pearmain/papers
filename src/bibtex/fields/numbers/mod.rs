@@ -1,6 +1,5 @@
-pub mod number;
-pub mod roman;
-
+mod number;
+mod roman;
 mod error {
     use std::fmt;
 
@@ -30,3 +29,6 @@ mod error {
 
     impl std::error::Error for ParseRomanError {}
 }
+
+pub use number::Number;
+pub use roman::Roman;

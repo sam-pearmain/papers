@@ -7,6 +7,7 @@ pub enum ParseFieldError {
     InvalidPageNumber { num: usize },
     InvalidYear { year: String },
     MangledPageRange { from: usize, to: usize },
+    NotPositive, 
 }
 
 impl fmt::Display for ParseFieldError {
@@ -26,6 +27,9 @@ impl fmt::Display for ParseFieldError {
             }, 
             Self::MangledPageRange { from, to } => {
                 write!(f, "mangled page range '{}--{}'", from, to)
+            }, 
+            Self::NotPositive => {
+                write!(f, "positive number expected but negative found")
             }
         }
     }
