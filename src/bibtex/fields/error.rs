@@ -23,7 +23,7 @@ impl fmt::Display for ParseFieldError {
             },
             Self::InvalidYear { year } => {
                 write!(f, "invalid year '{}'", year)
-            }
+            }, 
             Self::MangledPageRange { from, to } => {
                 write!(f, "mangled page range '{}--{}'", from, to)
             }
