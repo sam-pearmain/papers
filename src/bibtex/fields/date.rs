@@ -1,7 +1,5 @@
 use std::{fmt, str::FromStr};
-use numerals::roman::Roman;
-
-use crate::bibtex::fields::error::ParseFieldError;
+use crate::bibtex::fields::{error::ParseFieldError, numbers::PositiveNumber};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Month {
@@ -50,36 +48,16 @@ impl fmt::Display for Month {
     }
 }
 
-#[derive(Debug)]
-pub enum Year {
-    Standard(usize), 
-    Numerals(Roman),
-}
+#[derive(Debug, Clone)]
+/// A year as either an integer or roman numerals
+pub struct Year(PositiveNumber);
 
 impl FromStr for Year {
     type Err = ParseFieldError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.trim();
-
-        if let Ok(year) = s.parse::<usize>() {
-            return Ok(Year::Standard(year))
-        }
-
-        if let Some(year) = Roman::parse(s) {
-            return Ok(Year::Numerals(year))
-        }
-
-        return Err(ParseFieldError::InvalidYear { year: s.to_string() })
-    }
-}
-
-impl fmt::Display for Year {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Standard(year) => { write!(f, "{}", year)}, 
-            Self::Numerals(roman) => { write!(f, "{:?}", roman)},
-        }
+        let num = s.parse::<PositiveNumber>()?;
+        Ok(Self(num))
     }
 }
 

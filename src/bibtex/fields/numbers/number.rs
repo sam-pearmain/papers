@@ -28,6 +28,7 @@ impl FromStr for Number {
 }
 
 #[derive(Debug, Clone)]
+/// A number we expect to be positive
 pub struct PositiveNumber(Number);
 
 impl FromStr for PositiveNumber {

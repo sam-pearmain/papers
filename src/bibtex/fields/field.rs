@@ -1,11 +1,11 @@
 use std::{collections::HashMap, str::FromStr};
 use url::Url;
 
-use crate::bibtex::error::{ParseError, ParseErrorType};
+use crate::bibtex::error::ParseErrorType;
 use crate::bibtex::fields::{date::{Month, Year}, pages::Pages, numbers::Number};
 use crate::bibtex::fields::error::ParseFieldError;
 
-#[derive(Debug, PartialEq, Clone, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// An enum for the different kinds of BibTex field 
 pub enum Field {
     Address, Annote, Author, BookTitle, Chapter, Edition, Editor,
@@ -61,12 +61,13 @@ pub enum FieldValue {
 }
 
 impl FieldValue {
-    fn string(s: &str) -> Self {
-        todo!()
+    fn string(s: &str) -> Result<Self, ParseFieldError> {
+        Ok(Self::String { s: s.to_string() })
     }
 
-    fn number(s: &str) -> Self {
-        todo!()
+    fn number(s: &str) -> Result<Self, ParseFieldError> {
+        let number = s.parse::<Number>()?;
+        Ok(Self::Number { number })
     }
 
     fn pages(s: &str) -> Result<Self, ParseFieldError> {
@@ -79,8 +80,14 @@ impl FieldValue {
         Ok(Self::Month { month })
     }
 
-    fn url(s: &str) -> Result<Self, url::ParseError> {
-        let url = Url::parse(s)?;
+    fn year(s: &str) -> Result<Self, ParseFieldError> {
+        let year = s.parse::<Year>()?;
+        Ok(Self::Year { year })
+    }
+
+    fn url(s: &str) -> Result<Self, ParseFieldError> {
+        let url = Url::parse(s)
+            .map_err(|e| ParseFieldError::InvalidUrl { url: s.to_string(), err: e })?;
         Ok(Self::Url { url })
     }
 }
@@ -95,9 +102,17 @@ impl Fields {
         Fields { fields: HashMap::new() }
     }
 
-    pub fn add(&mut self, field: Field, value: &str) -> Result<(), ParseError> {
-        match field {
-            
-        }
-    } 
+    pub fn insert_field(&mut self, field: Field, value: &str) -> Result<(), ParseFieldError> {
+        let field_value = match field {
+            Field::Year => FieldValue::year(value)?,
+            Field::Month => FieldValue::month(value)?, 
+            Field::Volume => FieldValue::number(value)?,
+            Field::Url => FieldValue::url(value)?,
+            Field::Pages => FieldValue::pages(value)?,
+            _ => FieldValue::string(value)?,
+        };
+
+        self.fields.insert(field, field_value);
+        Ok(())
+    }
 }

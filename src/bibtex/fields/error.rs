@@ -6,6 +6,7 @@ pub enum ParseFieldError {
     UnknownNumber { got: String }, 
     InvalidPageNumber { num: usize },
     InvalidYear { year: String },
+    InvalidUrl { url: String, err: url::ParseError },
     MangledPageRange { from: usize, to: usize },
     NotPositive, 
 }
@@ -30,7 +31,10 @@ impl fmt::Display for ParseFieldError {
             }, 
             Self::NotPositive => {
                 write!(f, "positive number expected but negative found")
-            }
+            }, 
+            Self::InvalidUrl { url, err } => {
+                write!(f, "invalid url '{}': {}", url, err)
+            },
         }
     }
 }

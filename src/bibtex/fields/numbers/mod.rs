@@ -1,3 +1,7 @@
+#![allow(unused_imports)]
+pub use number::{Number, PositiveNumber};
+pub use roman::Roman;
+
 mod number;
 mod roman;
 mod error {
@@ -29,6 +33,3 @@ mod error {
 
     impl std::error::Error for ParseRomanError {}
 }
-
-pub use number::Number;
-pub use roman::Roman;

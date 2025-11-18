@@ -1,8 +1,9 @@
 use std::str::{Chars, FromStr};
 use std::iter::Peekable;
 use crate::bibtex::bibliography::Bibliography;
-use crate::bibtex::entry::Entry;
-use crate::bibtex::error::ParseError;
+use crate::bibtex::entry::{Entry, EntryKind};
+use crate::bibtex::error::{ParseError, ParseErrorType};
+use crate::bibtex::fields::{Field, Fields};
 
 pub struct Parser<'a> {
     input: Peekable<Chars<'a>>, 
@@ -37,23 +38,73 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_entry(&mut self) -> Result<Option<Entry>, ParseError> {
-        todo!()
+        self.skip_whitespace_and_comments();
+        if self.peek().is_none() {
+            return Ok(None);
+        }
+
+        self.consume_char('@')?;
+        let entry_kind_string = self.consume_ident()?;
+        let entry_kind = EntryKind::from_str(&entry_kind_string)
+            .map_err(|e| ParseError::new(
+                e, self.row, self.col
+            ))?;
+
+        self.consume_char('{')?;
+        let citekey = self.consume_ident()?;
+        self.consume_char(',')?;
+        let fields = self.parse_fields()?;
+        self.consume_char('}')?;
+
+        Ok(Some(Entry::new(citekey, entry_kind, fields)))
     }
 
-    fn parse_fields(&mut self) {
-        todo!()
-    }
+    fn parse_fields(&mut self) -> Result<Fields, ParseError>{
+        self.skip_whitespace_and_comments();
 
-    fn parse_field(&mut self) -> Result<Field, ParseError> {
-        let ident = self.consume_ident()?;
-        let field = Field::from_str(&ident)
-            .map_err(|_| ParseError::unknown_field(ident, self.row, self.col));
-        
-        self.consume_char('=')?;
-        
-        let value: String = self.consume_value()?;
+        let mut fields = Fields::new();
 
-        
+        loop {
+            let ident = self.consume_ident()?;
+            let field = Field::from_str(&ident)
+                .map_err(|_| ParseError::unknown_field(ident, self.row, self.col))?;
+
+            self.consume_char('=')?;
+
+            let value = self.consume_value()?;
+            fields.insert_field(field, value.as_str())
+                .map_err(|e| ParseError::new(
+                    ParseErrorType::from(e), 
+                    self.col, self.row
+                ))?;
+
+            self.skip_whitespace_and_comments();
+            
+            match self.peek() {
+                Some(&'}') => {
+                    // end of an entry
+                    break; 
+                }, 
+                Some(&',') => {
+                    // there is maybe another field
+                    self.advance(); 
+                    
+                    // handle trailing comma
+                    self.skip_whitespace_and_comments();
+                    if let Some(&'}') = self.peek() {
+                        break;
+                    }
+                },
+                Some(&c) => {
+                    return Err(ParseError::unexpected_char(c, self.row, self.col));
+                },
+                None => {
+                    return Err(ParseError::unexpected_eof(self.row, self.col));
+                }, 
+            }
+        }
+
+        Ok(fields)
     }
 
     /// Consumes an identifier
@@ -235,5 +286,68 @@ impl<'a> Parser<'a> {
                 _ => break,
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_simple_parse_succeeds() {
+        let bibtex_input = r#"
+            @article{Smith2023,
+                author = "John Smith",
+                title = {A Paper},
+                journal = {Some Journal},
+                year = {2023},
+                pages = {100--110}
+            }
+
+            @book{Jones2022,
+                title = "A Book",
+                author = "Jane Jones",
+                publisher = "A Publisher",
+                year = {2022}
+            }
+        "#;
+
+        let mut parser = Parser::new(bibtex_input);
+        let result = parser.parse();
+
+        assert!(result.is_ok(), "Parser failed but should have succeeded");
+
+        let bibliography = result.unwrap();
+        assert!(!bibliography.is_empty(), "Bibliography should contain entries");
+    }
+
+    #[test]
+    fn test_mismatched_braces_fails() {
+        let bibtex_input = r#"
+            @article{Smith2023,
+                author = "John Smith",
+                title = {A Paper
+            }
+        "#;
+
+        let mut parser = Parser::new(bibtex_input);
+        let result = parser.parse();
+
+        assert!(result.is_err(), "Parser succeeded but should have failed");
+    }
+
+    #[test]
+    fn test_missing_comma_fails() {
+        let bibtex_input = r#"
+            @article{Smith2023,
+                author = "John Smith"
+                title = {A Paper}
+            }
+        "#;
+
+        let mut parser = Parser::new(bibtex_input);
+        let result = parser.parse();
+
+        assert!(result.is_err(), "Parser succeeded but should have failed");
     }
 }

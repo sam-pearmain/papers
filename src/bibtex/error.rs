@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::fmt;
+use crate::bibtex::fields::ParseFieldError;
 
 #[derive(Debug)]
 pub enum ParseErrorType {
@@ -7,6 +8,7 @@ pub enum ParseErrorType {
     EmptyValue, 
     UnexpectedChar { c: char}, 
     UnexpectedEof, 
+    ParseFieldError(ParseFieldError), 
     UnknownEntry { entry: String },
     UnknownField { field: String }, 
 }
@@ -32,7 +34,16 @@ impl fmt::Display for ParseErrorType {
             Self::UnknownField { field } => {
                 write!(f, "unknown field: {}", field)
             }, 
+            Self::ParseFieldError(e) => {
+                write!(f, "error parsing field: {}", e)
+            }
         }
+    }
+}
+
+impl From<ParseFieldError> for ParseErrorType {
+    fn from(error: ParseFieldError) -> Self {
+        ParseErrorType::ParseFieldError(error)
     }
 }
 
