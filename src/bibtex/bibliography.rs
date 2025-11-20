@@ -1,11 +1,12 @@
 use std::collections::HashMap;
+use std::fmt;
 
 use crate::bibtex::entry::Entry;
 use crate::bibtex::error::BibliographyError;
 
-
+#[derive(Debug)]
 pub struct Bibliography {
-    entries: HashMap<String, Entry>, 
+    pub entries: HashMap<String, Entry>, 
 }
 
 impl Bibliography {
@@ -32,5 +33,14 @@ impl Bibliography {
 
     pub fn is_empty(&self) -> bool {
         self.entries.is_empty()
+    }
+}
+
+impl fmt::Display for Bibliography {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (_, entry) in &self.entries {
+            write!(f, "{}\n", entry);
+        }
+        Ok(())
     }
 }

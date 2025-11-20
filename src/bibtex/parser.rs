@@ -111,32 +111,21 @@ impl<'a> Parser<'a> {
     fn consume_ident(&mut self) -> Result<String, ParseError> {
         self.skip_whitespace_and_comments();
         let mut ident = String::new();
-        
-        match self.peek() {
-            Some(&c) => {
-                if c.is_ascii_alphanumeric() {
-                    self.advance();
-                    ident.push(c);
 
-                    loop {
-                        if let Some(&c) = self.peek() {
-                            self.advance();
-                            ident.push(c);
-                        } else {
-                            break;
-                        }
-                    }
-                } else {
-                    // we expect an alphanumeric char to start the ident
-                    return Err(ParseError::unexpected_char(c, self.row, self.col));
-                }
-            }, 
-            None => {
-                return Err(ParseError::unexpected_eof(self.row, self.col));
+        while let Some(&c) = self.peek() {
+            if c.is_ascii_alphanumeric() || "_+-:.".contains(c) {
+                self.advance();
+                ident.push(c);
+            } else {
+                break;
             }
         }
 
-        Ok(ident)
+        if ident.is_empty() {
+            Err(ParseError::unexpected_eof(self.row, self.col))
+        } else {
+            Ok(ident)
+        }
     }
 
     /// Consumes a value contained within {}s or ""s

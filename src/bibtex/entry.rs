@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 use crate::bibtex::{error::ParseErrorType, fields::Fields}; 
 
 #[derive(Debug, Clone)]
@@ -36,11 +36,19 @@ impl FromStr for EntryKind {
 pub struct Entry {
     pub citekey: String, 
     pub kind: EntryKind, 
-    fields: Fields,
+    pub fields: Fields,
 }
 
 impl Entry {
     pub fn new(citekey: String, kind: EntryKind, fields: Fields) -> Self {
         Entry { citekey, kind, fields }
+    }
+}
+
+impl fmt::Display for Entry {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "@{}{{{},\n", self.kind, self.citekey);
+        write!(f, "");
+        write!(f, "}}")
     }
 }
