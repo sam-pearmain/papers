@@ -8,6 +8,28 @@ pub enum EntryKind {
     Proceedings, TechReport, Unpublished,
 }
 
+impl fmt::Display for EntryKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let kind = match self {
+            Self::Article => "article",
+            Self::Book => "book",
+            Self::Booklet => "booklet",
+            Self::Conference => "conference",
+            Self::InBook => "inbook",
+            Self::InCollection => "incollection",
+            Self::InProceedings => "inproceedings",
+            Self::Manual => "manual",
+            Self::MasterThesis => "mastersthesis",
+            Self::Misc => "misc",
+            Self::PhDThesis => "phdthesis",
+            Self::Proceedings => "proceedings",
+            Self::TechReport => "techreport",
+            Self::Unpublished => "unpublished",
+        };
+        write!(f, "{}", kind)
+    }
+}
+
 impl FromStr for EntryKind {
     type Err = ParseErrorType;
 

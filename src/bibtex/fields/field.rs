@@ -14,6 +14,40 @@ pub enum Field {
     Volume, Year, Doi, Issn, Isbn, Url,
 }
 
+impl fmt::Display for Field {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let field = match self {
+            Self::Address => "address",
+            Self::Annote => "annote",
+            Self::Author => "author",
+            Self::BookTitle => "booktitle",
+            Self::Chapter => "chapter",
+            Self::Edition => "edition",
+            Self::Editor => "editor",
+            Self::HowPublished => "howpublished",
+            Self::Institution => "institution",
+            Self::Journal => "journal",
+            Self::Month => "month",
+            Self::Note => "note",
+            Self::Number => "number",
+            Self::Organization => "organization",
+            Self::Pages => "pages",
+            Self::Publisher => "publisher",
+            Self::School => "school",
+            Self::Series => "series",
+            Self::Title => "title",
+            Self::Type => "type",
+            Self::Volume => "volume",
+            Self::Year => "year",
+            Self::Doi => "doi",
+            Self::Issn => "issn",
+            Self::Isbn => "isbn",
+            Self::Url => "url",
+        };
+        write!(f, "{}", field)
+    }
+}
+
 impl FromStr for Field {
     type Err = ParseErrorType;
 

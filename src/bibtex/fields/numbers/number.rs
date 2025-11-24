@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 use crate::bibtex::fields::error::ParseFieldError;
 use super::roman::Roman;
 
@@ -7,6 +7,15 @@ use super::roman::Roman;
 pub enum Number {
     Standard(i32), 
     Roman(Roman), 
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Standard(n) => write!(f, "{}", n),
+            Self::Roman(r) => write!(f, "{}", r),
+        }
+    }
 }
 
 impl FromStr for Number {
@@ -30,6 +39,12 @@ impl FromStr for Number {
 #[derive(Debug, Clone)]
 /// A number we expect to be positive
 pub struct PositiveNumber(Number);
+
+impl fmt::Display for PositiveNumber {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 impl FromStr for PositiveNumber {
     type Err = ParseFieldError;

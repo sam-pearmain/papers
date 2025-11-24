@@ -50,6 +50,23 @@ impl Roman {
     pub const MIN_VALUE: u32 = 1; 
 }
 
+impl fmt::Display for Roman {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for numeral in &self.numerals {
+            write!(f, "{}", match numeral {
+                Numeral::I => 'I',
+                Numeral::V => 'V',
+                Numeral::X => 'X',
+                Numeral::L => 'L',
+                Numeral::C => 'C',
+                Numeral::D => 'D',
+                Numeral::M => 'M',
+            })?;
+        }
+        Ok(())
+    }
+}
+
 impl FromStr for Roman {
     type Err = ParseRomanError;
 
